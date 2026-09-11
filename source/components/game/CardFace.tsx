@@ -1,7 +1,8 @@
+import type { CSSProperties } from "react";
 import { cn } from "@/lib/utils";
 import { asset } from "@/lib/asset";
 import { getCard, RARITY_LABEL } from "@/game/cards";
-import type { Keyword } from "@/game/types";
+import type { CardDef, Keyword } from "@/game/types";
 
 const SIZE = {
   xs: "w-[4.4rem] h-[6.15rem] text-[0.55rem] rounded-[0.7rem]",
@@ -29,6 +30,43 @@ const FACTION_GLOW: Record<string, string> = {
   abyssal: "shadow-[0_0_16px_rgb(111_143_138_/_0.4)]",
   revenant: "shadow-[0_0_16px_rgb(207_198_184_/_0.3)]",
 };
+
+function hashId(id: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < id.length; i++) {
+    h ^= id.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+function liveVars(id: string): CSSProperties {
+  const t = hashId(id);
+  const x = ((t % 11) - 5) * 0.95;
+  const y = (((t >> 4) % 9) - 4) * 0.85;
+  const artDur = 13 + (t % 10);
+  const auraDur = 8 + ((t >> 8) % 7);
+  return {
+    "--art-x": `${x}%`,
+    "--art-y": `${y}%`,
+    "--art-dur": `${artDur}s`,
+    "--art-delay": `-${(t >> 6) % artDur}s`,
+    "--aura-dur": `${auraDur}s`,
+    "--aura-delay": `-${(t >> 10) % auraDur}s`,
+  } as CSSProperties;
+}
+
+function auraKind(card: CardDef): string {
+  const t = card.keywords[0];
+  if (t === "rush" || t === "frenzy") return "rush";
+  if (t === "guard" || t === "ward") return "ward";
+  if (t === "stalk") return "mist";
+  if (t === "reborn") return "ash";
+  if (t === "cleave" || t === "pierce" || t === "overwhelm") return "tide";
+  if (t === "pack" || t === "lifesteal" || t === "venom") return "ember";
+  if (t === "apex" || card.rarity === "legendary") return "gold";
+  return card.faction;
+}
 
 export function CardFace({
   cardId,
@@ -63,11 +101,13 @@ export function CardFace({
   const hp = health ?? card.health;
   const showText = size === "md" || size === "lg" || size === "hand";
   const detailed = size === "lg";
+  const aura = auraKind(card);
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={!onClick}
+      style={liveVars(card.id)}
       className={cn(
         "card-frame relative text-left transition-transform duration-(--motion-quick) touch-manipulation",
         `card-frame-${card.faction}`,
@@ -86,13 +126,7 @@ export function CardFace({
           className="card-art"
           style={{ backgroundImage: `url(${asset(`cards/${card.id}.jpg`)})` }}
         />
-        {!locked && (
-          <span className="card-arc" aria-hidden>
-            <span className="card-arc-bolt" />
-            <span className="card-arc-bolt card-arc-bolt-2" />
-            <span className="card-arc-flash" />
-          </span>
-        )}
+        <span className={cn("card-aura", `card-aura-${aura}`)} data-aura={aura} aria-hidden />
         <div className="card-light" />
         <Cost cost={card.cost} size={size} />
         {marks.length > 0 && size !== "lg" && (
