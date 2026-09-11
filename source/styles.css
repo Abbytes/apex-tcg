@@ -173,7 +173,6 @@
 
 .card-inner {
   box-shadow: inset 0 0 0 1px rgb(228 199 122 / 0.18);
-  contain: paint;
 }
 
 .card-inner::after {
@@ -224,248 +223,107 @@
 
 .card-art {
   position: absolute;
-  inset: -16%;
+  inset: 0;
   z-index: 0;
   background-size: cover;
   background-position: center 18%;
-  transform: scale(var(--live-scale, 1.16));
-  animation: card-live-a var(--live-dur, 18s) ease-in-out var(--live-delay, 0s) infinite alternate;
 }
 
-.card-art[data-live="b"] {
-  animation-name: card-live-b;
-}
-
-.card-art[data-live="c"] {
-  animation-name: card-live-c;
-}
-
-.card-art[data-live="d"] {
-  animation-name: card-live-d;
-}
-
-@keyframes card-live-a {
-  from {
-    transform: translate3d(calc(var(--live-dx, 5%) * -1), calc(var(--live-dy, 3%) * -1), 0)
-      scale(var(--live-scale, 1.16));
-  }
-  to {
-    transform: translate3d(var(--live-dx, 5%), var(--live-dy, 3%), 0)
-      scale(calc(var(--live-scale, 1.16) * 1.08));
-  }
-}
-
-@keyframes card-live-b {
-  from {
-    transform: translate3d(var(--live-dx, 5%), calc(var(--live-dy, 3%) * -1), 0)
-      scale(calc(var(--live-scale, 1.16) * 1.07));
-  }
-  to {
-    transform: translate3d(calc(var(--live-dx, 5%) * -1), var(--live-dy, 3%), 0)
-      scale(var(--live-scale, 1.16));
-  }
-}
-
-@keyframes card-live-c {
-  from {
-    transform: translate3d(calc(var(--live-dx, 5%) * -0.4), var(--live-dy, 3%), 0)
-      scale(var(--live-scale, 1.16)) rotate(-1.2deg);
-  }
-  to {
-    transform: translate3d(var(--live-dx, 5%), calc(var(--live-dy, 3%) * -1), 0)
-      scale(calc(var(--live-scale, 1.16) * 1.06)) rotate(1.4deg);
-  }
-}
-
-@keyframes card-live-d {
-  from {
-    transform: translate3d(var(--live-dx, 5%), var(--live-dy, 3%), 0)
-      scale(calc(var(--live-scale, 1.16) * 1.05));
-  }
-  to {
-    transform: translate3d(calc(var(--live-dx, 5%) * -1.1), calc(var(--live-dy, 3%) * -0.6), 0)
-      scale(calc(var(--live-scale, 1.16) * 1.12));
-  }
-}
-
-.card-aura {
+.card-arc {
   pointer-events: none;
   position: absolute;
   inset: 0;
   z-index: 2;
   overflow: hidden;
-}
-
-.card-aura-mist,
-.card-aura-motes {
-  position: absolute;
-  inset: -18%;
   mix-blend-mode: screen;
 }
 
-.card-aura-mist {
-  opacity: 0.72;
-  animation: card-aura-drift var(--live-dur, 18s) ease-in-out var(--live-delay, 0s) infinite alternate;
+.card-arc-bolt {
+  position: absolute;
+  left: 18%;
+  top: -18%;
+  width: 14px;
+  height: 92%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgb(180 230 255 / 0.15) 12%,
+    rgb(210 240 255 / 0.95) 38%,
+    rgb(228 199 122 / 0.85) 62%,
+    transparent 100%
+  );
+  clip-path: polygon(46% 0, 62% 16%, 40% 28%, 78% 48%, 36% 72%, 58% 100%, 28% 70%, 54% 46%, 22% 30%, 48% 14%);
+  filter: drop-shadow(0 0 6px rgb(170 220 255 / 0.85));
+  transform-origin: top center;
+  animation: bolt-strike 5.2s ease-in infinite;
+  opacity: 0;
 }
 
-.card-aura-motes {
-  opacity: 0.8;
-  animation: card-motes calc(var(--live-dur, 18s) * 1.15) linear var(--live-delay, 0s) infinite;
+.card-arc-bolt-2 {
+  left: auto;
+  right: 16%;
+  width: 11px;
+  animation-delay: 2.4s;
+  animation-duration: 6.1s;
+  filter: drop-shadow(0 0 5px rgb(228 199 122 / 0.7));
 }
 
-.card-aura-shadowborn .card-aura-mist {
+.card-arc-flash {
+  position: absolute;
+  inset: 0;
   background:
-    radial-gradient(ellipse 70% 48% at 28% 18%, rgb(228 199 122 / 0.42), transparent 62%),
-    linear-gradient(180deg, rgb(228 199 122 / 0.1), transparent 42%, rgb(160 120 48 / 0.28));
+    radial-gradient(ellipse 40% 28% at 30% 22%, rgb(180 230 255 / 0.28), transparent 70%),
+    radial-gradient(ellipse 36% 24% at 72% 18%, rgb(228 199 122 / 0.18), transparent 72%);
+  animation: bolt-flash 5.2s ease-in infinite;
+  opacity: 0;
 }
 
-.card-aura-shadowborn .card-aura-motes {
-  background-image:
-    radial-gradient(circle at 18% 30%, rgb(243 226 176 / 0.85) 0 1px, transparent 2px),
-    radial-gradient(circle at 72% 22%, rgb(228 199 122 / 0.7) 0 1.4px, transparent 2.6px),
-    radial-gradient(circle at 40% 68%, rgb(255 236 190 / 0.55) 0 1px, transparent 2px);
-  background-size: 70% 80%, 90% 70%, 60% 90%;
+.card-lit .card-arc-bolt,
+.card-ready .card-arc-bolt {
+  animation-duration: 3.4s;
 }
 
-.card-aura-crimson .card-aura-mist {
-  background:
-    radial-gradient(ellipse 90% 58% at 50% 108%, rgb(180 35 24 / 0.62), transparent 64%),
-    radial-gradient(ellipse 42% 28% at 74% 18%, rgb(255 70 40 / 0.22), transparent 70%);
+.card-frame.grayscale .card-arc {
+  display: none;
 }
 
-.card-aura-crimson .card-aura-motes {
-  background-image:
-    radial-gradient(circle at 30% 80%, rgb(255 70 40 / 0.7) 0 1.2px, transparent 2.4px),
-    radial-gradient(circle at 68% 62%, rgb(180 35 24 / 0.8) 0 1.6px, transparent 3px);
-  background-size: 55% 70%, 80% 60%;
-}
-
-.card-aura-abyssal .card-aura-mist {
-  background:
-    radial-gradient(ellipse 92% 70% at 42% 82%, rgb(106 212 230 / 0.38), transparent 66%),
-    linear-gradient(155deg, rgb(70 170 190 / 0.2), transparent 48%, rgb(18 50 58 / 0.28));
-}
-
-.card-aura-abyssal .card-aura-motes {
-  background-image:
-    radial-gradient(circle at 22% 40%, rgb(170 240 255 / 0.75) 0 1.2px, transparent 2.4px),
-    radial-gradient(circle at 78% 28%, rgb(106 212 230 / 0.65) 0 1.6px, transparent 3px),
-    radial-gradient(circle at 48% 72%, rgb(80 200 210 / 0.5) 0 1px, transparent 2px);
-  background-size: 65% 75%, 85% 55%, 50% 80%;
-}
-
-.card-aura-revenant .card-aura-mist {
-  background:
-    radial-gradient(ellipse 62% 42% at 50% 8%, rgb(207 198 184 / 0.34), transparent 70%),
-    linear-gradient(180deg, transparent 28%, rgb(140 150 130 / 0.26));
-}
-
-.card-aura-revenant .card-aura-motes {
-  background-image:
-    radial-gradient(circle at 24% 24%, rgb(232 226 214 / 0.7) 0 1px, transparent 2px),
-    radial-gradient(circle at 70% 58%, rgb(180 190 170 / 0.55) 0 1.4px, transparent 2.6px);
-  background-size: 60% 70%, 75% 80%;
-}
-
-.card-aura-stalk .card-aura-mist {
-  background:
-    radial-gradient(ellipse 80% 70% at 50% 50%, transparent 30%, rgb(8 10 16 / 0.55) 100%),
-    linear-gradient(125deg, rgb(160 190 220 / 0.16), transparent 50%);
-}
-
-.card-aura-stalk .card-aura-motes {
-  opacity: 0.45;
-  background-image: radial-gradient(circle at 50% 40%, rgb(200 220 240 / 0.5) 0 1px, transparent 2px);
-  background-size: 40% 50%;
-}
-
-.card-aura-venom .card-aura-mist {
-  background:
-    radial-gradient(ellipse 70% 50% at 30% 80%, rgb(90 210 90 / 0.32), transparent 65%),
-    linear-gradient(180deg, transparent 40%, rgb(40 90 40 / 0.28));
-}
-
-.card-aura-venom .card-aura-motes {
-  background-image: radial-gradient(circle at 40% 70%, rgb(140 255 120 / 0.7) 0 1.2px, transparent 2.4px);
-  background-size: 55% 70%;
-}
-
-.card-aura-blood .card-aura-mist {
-  background:
-    radial-gradient(ellipse 85% 55% at 50% 100%, rgb(160 20 18 / 0.7), transparent 62%),
-    radial-gradient(ellipse 30% 24% at 20% 30%, rgb(255 60 40 / 0.25), transparent 70%);
-}
-
-.card-aura-blood .card-aura-motes {
-  background-image: radial-gradient(circle at 48% 78%, rgb(255 80 50 / 0.75) 0 1.5px, transparent 3px);
-  background-size: 70% 60%;
-}
-
-.card-aura-apex .card-aura-mist {
-  background:
-    radial-gradient(ellipse 60% 40% at 50% 20%, rgb(255 220 140 / 0.4), transparent 70%),
-    linear-gradient(180deg, rgb(228 199 122 / 0.18), transparent 50%, rgb(180 40 20 / 0.2));
-}
-
-.card-aura-apex .card-aura-motes {
-  background-image:
-    radial-gradient(circle at 30% 20%, rgb(255 236 180 / 0.9) 0 1.3px, transparent 2.6px),
-    radial-gradient(circle at 70% 40%, rgb(228 199 122 / 0.7) 0 1px, transparent 2px);
-  background-size: 80% 70%, 60% 80%;
-}
-
-.card-aura-ward .card-aura-mist {
-  background:
-    radial-gradient(ellipse 80% 80% at 50% 50%, rgb(180 210 255 / 0.18), transparent 62%),
-    linear-gradient(180deg, rgb(200 220 255 / 0.16), transparent 55%);
-}
-
-.card-aura-ward .card-aura-motes {
-  background-image: radial-gradient(circle at 50% 30%, rgb(210 230 255 / 0.7) 0 1.2px, transparent 2.4px);
-  background-size: 65% 65%;
-}
-
-.card-aura-ash .card-aura-mist {
-  background:
-    radial-gradient(ellipse 70% 50% at 40% 20%, rgb(220 220 210 / 0.28), transparent 68%),
-    linear-gradient(180deg, transparent 20%, rgb(90 90 80 / 0.3));
-}
-
-.card-aura-ash .card-aura-motes {
-  background-image: radial-gradient(circle at 60% 40%, rgb(230 228 220 / 0.65) 0 1.1px, transparent 2.2px);
-  background-size: 70% 80%;
-}
-
-@keyframes card-aura-drift {
-  from {
-    transform: translate3d(-4%, 2%, 0) scale(1);
-    opacity: 0.55;
+@keyframes bolt-strike {
+  0%,
+  72%,
+  100% {
+    opacity: 0;
+    transform: scaleY(0.35) translateY(-12%);
   }
-  to {
-    transform: translate3d(5%, -3%, 0) scale(1.08);
-    opacity: 0.9;
+  74% {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+  }
+  78% {
+    opacity: 0.15;
+  }
+  80% {
+    opacity: 0.85;
+    transform: scaleY(1.04) translateY(2%);
+  }
+  86% {
+    opacity: 0;
   }
 }
 
-@keyframes card-motes {
-  from {
-    transform: translate3d(0, 8%, 0);
+@keyframes bolt-flash {
+  0%,
+  72%,
+  100% {
+    opacity: 0;
   }
-  to {
-    transform: translate3d(-6%, -14%, 0);
+  74% {
+    opacity: 0.7;
   }
-}
-
-.card-frame.grayscale .card-aura,
-.card-frame.grayscale .card-art {
-  animation: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .card-art,
-  .card-aura-mist,
-  .card-aura-motes {
-    animation: none;
+  80% {
+    opacity: 0.2;
+  }
+  86% {
+    opacity: 0;
   }
 }
 

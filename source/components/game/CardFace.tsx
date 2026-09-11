@@ -1,8 +1,7 @@
-import type { CSSProperties } from "react";
 import { cn } from "@/lib/utils";
 import { asset } from "@/lib/asset";
 import { getCard, RARITY_LABEL } from "@/game/cards";
-import type { CardDef, Keyword } from "@/game/types";
+import type { Keyword } from "@/game/types";
 
 const SIZE = {
   xs: "w-[4.4rem] h-[6.15rem] text-[0.55rem] rounded-[0.7rem]",
@@ -30,44 +29,6 @@ const FACTION_GLOW: Record<string, string> = {
   abyssal: "shadow-[0_0_16px_rgb(111_143_138_/_0.4)]",
   revenant: "shadow-[0_0_16px_rgb(207_198_184_/_0.3)]",
 };
-
-const LIVE_PATH = ["a", "b", "c", "d"] as const;
-
-function hashId(id: string): number {
-  let h = 2166136261;
-  for (let i = 0; i < id.length; i++) {
-    h ^= id.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return h >>> 0;
-}
-
-function liveVars(id: string): CSSProperties {
-  const h = hashId(id);
-  const dx = 4 + (h % 5);
-  const dy = 3 + ((h >> 4) % 4);
-  const dur = 16 + (h % 11);
-  const scale = 1.14 + ((h >> 6) % 6) * 0.02;
-  const delay = -((h >> 8) % 16);
-  return {
-    "--live-dx": `${h & 1 ? dx : -dx}%`,
-    "--live-dy": `${h & 2 ? dy : -dy}%`,
-    "--live-dur": `${dur}s`,
-    "--live-scale": String(scale),
-    "--live-delay": `${delay}s`,
-  } as CSSProperties;
-}
-
-function auraKind(card: CardDef): string {
-  const k = card.keywords;
-  if (k.includes("stalk")) return "stalk";
-  if (k.includes("venom")) return "venom";
-  if (k.includes("frenzy") || k.includes("lifesteal")) return "blood";
-  if (k.includes("apex") || k.includes("overwhelm")) return "apex";
-  if (k.includes("ward") || k.includes("guard")) return "ward";
-  if (k.includes("reborn")) return "ash";
-  return card.faction;
-}
 
 export function CardFace({
   cardId,
@@ -102,9 +63,6 @@ export function CardFace({
   const hp = health ?? card.health;
   const showText = size === "md" || size === "lg" || size === "hand";
   const detailed = size === "lg";
-  const seed = hashId(card.id);
-  const path = LIVE_PATH[seed % 4]!;
-  const aura = auraKind(card);
   return (
     <button
       type="button"
@@ -126,21 +84,18 @@ export function CardFace({
       <div className={cn("card-inner relative h-full overflow-hidden bg-surface-2", INNER[size])}>
         <div
           className="card-art"
-          data-live={path}
-          style={{
-            backgroundImage: `url(${asset(`cards/${card.id}.jpg`)})`,
-            ...liveVars(card.id),
-          }}
+          style={{ backgroundImage: `url(${asset(`cards/${card.id}.jpg`)})` }}
         />
         {!locked && (
-          <span className={cn("card-aura", `card-aura-${aura}`)} aria-hidden>
-            <span className="card-aura-mist" />
-            <span className="card-aura-motes" />
+          <span className="card-arc" aria-hidden>
+            <span className="card-arc-bolt" />
+            <span className="card-arc-bolt card-arc-bolt-2" />
+            <span className="card-arc-flash" />
           </span>
         )}
         <div className="card-light" />
         <Cost cost={card.cost} size={size} />
-        {marks.length > 0 && size !== "lg" && count === undefined && (
+        {marks.length > 0 && size !== "lg" && (
           <span className="absolute right-1 top-1 z-10 max-w-[70%] truncate rounded-xs bg-bg/75 px-1 text-[0.48rem] uppercase tracking-wide text-accent">
             {marks[0]}
           </span>
@@ -185,7 +140,7 @@ export function CardFace({
           ) : null}
         </div>
         {count !== undefined && (
-          <span className="absolute right-1 top-1 z-10 rounded-xs bg-bg/80 px-1 font-medium tabular-nums text-[0.6rem]">
+          <span className="absolute bottom-1 right-1 rounded-xs bg-bg/80 px-1 font-medium tabular-nums text-[0.6rem]">
             ×{count}
           </span>
         )}
