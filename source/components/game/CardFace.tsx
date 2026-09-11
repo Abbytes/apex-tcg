@@ -109,7 +109,7 @@ export function CardFace({
       disabled={!onClick}
       style={liveVars(card.id)}
       className={cn(
-        "card-frame relative text-left transition-transform duration-(--motion-quick) touch-manipulation",
+        "card-frame relative overflow-hidden text-left transition-transform duration-(--motion-quick) touch-manipulation",
         `card-frame-${card.faction}`,
         SIZE[size],
         selected && "card-lit ring-2 ring-accent",

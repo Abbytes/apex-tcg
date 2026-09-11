@@ -1,7 +1,7 @@
 import { COLLECTIBLE, STARTER_DECKS, getCard, getHunter } from "./cards";
 import { DECK_SIZE } from "./types";
 
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 const KEY = "apex-tcg-save-v1";
 
 export interface SavedDeck {
@@ -92,14 +92,23 @@ function padDeck(cards: string[], filler: string[]): string[] {
   return out;
 }
 
+const STARTER_HUNTERS: Record<string, { hunterId: string; name: string }> = {
+  shadowborn: { hunterId: "adamo", name: "Night Phalanx" },
+  crimson: { hunterId: "matriarch", name: "Blood Pack" },
+  abyssal: { hunterId: "warden", name: "Trench Crown" },
+  revenant: { hunterId: "herald", name: "Ash Procession" },
+};
+
 function migrateDeck(deck: SavedDeck): SavedDeck {
-  const faction = getHunter(deck.hunterId).faction;
-  const filler = STARTER_DECKS[deck.id] ?? STARTER_DECKS[faction] ?? STARTER_DECKS.shadowborn!;
-  if (deck.cards.length === DECK_SIZE) return deck;
-  if (deck.id in STARTER_DECKS && deck.cards.length < DECK_SIZE) {
-    return { ...deck, cards: filler.slice() };
+  const canon = STARTER_HUNTERS[deck.id];
+  const next = canon ? { ...deck, hunterId: canon.hunterId, name: canon.name } : deck;
+  const faction = getHunter(next.hunterId).faction;
+  const filler = STARTER_DECKS[next.id] ?? STARTER_DECKS[faction] ?? STARTER_DECKS.shadowborn!;
+  if (next.cards.length === DECK_SIZE) return next;
+  if (next.id in STARTER_DECKS && next.cards.length < DECK_SIZE) {
+    return { ...next, cards: filler.slice() };
   }
-  return { ...deck, cards: padDeck(deck.cards, filler) };
+  return { ...next, cards: padDeck(next.cards, filler) };
 }
 
 function migrate(raw: SaveData): SaveData {

@@ -225,6 +225,7 @@
   position: absolute;
   inset: -16%;
   z-index: 0;
+  pointer-events: none;
   background-size: cover;
   background-position: 50%;
   animation: card-live var(--art-dur, 16s) var(--art-delay, 0s) ease-in-out infinite alternate;

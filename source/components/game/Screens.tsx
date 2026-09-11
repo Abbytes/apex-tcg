@@ -158,15 +158,16 @@ export function PlaySetup() {
   const error = deckValid(deck, save);
 
   const selectDeck = (chosen: SavedDeck) => {
-    if (chosen.id === deckId) {
-      sfx.ui();
-      return;
+    if (chosen.id !== deckId) {
+      setDeckId(chosen.id);
+      setInspect(null);
+      patchSave((s) => ({ ...s, activeDeckId: chosen.id }));
+      setEnemy((cur) => (cur === chosen.hunterId ? otherHunter(chosen.hunterId) : cur));
     }
-    setDeckId(chosen.id);
-    setInspect(null);
-    patchSave((s) => ({ ...s, activeDeckId: chosen.id }));
-    setEnemy((cur) => (cur === chosen.hunterId ? otherHunter(chosen.hunterId) : cur));
     sfx.ui();
+    requestAnimationFrame(() => {
+      document.querySelector("[data-deck-roster]")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   };
 
   const begin = () => {
@@ -416,7 +417,7 @@ function DeckBanner({ deck }: { deck: SavedDeck }) {
       <img
         src={asset(`hunters/${hunter.id}.jpg`)}
         alt=""
-        className="h-32 w-full object-cover object-[center_20%]"
+        className="h-24 w-full object-cover object-[center_20%]"
         crossOrigin="anonymous"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/45 to-transparent" />
@@ -442,7 +443,7 @@ function DeckRoster({
 }) {
   const entries = deckRoster(deck);
   return (
-    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4" data-deck-roster={deck.id}>
+    <div className="grid scroll-mt-20 grid-cols-3 gap-2 sm:grid-cols-4" data-deck-roster={deck.id}>
       {entries.map(([id, n]) => (
         <div key={`${deck.id}-${id}`} className="relative min-w-0">
           <CardFace cardId={id} size="tile" count={n} onClick={() => onInspect(id)} />
@@ -527,14 +528,22 @@ export function DeckBuilder() {
         </Section>
         <Section label="Hunter">
           <div className="grid gap-3 sm:grid-cols-2">
-            {Object.values(HUNTERS).map((h) => (
+            {Object.values(HUNTERS).map((h) => {
+              const lockedStarter = ["shadowborn", "crimson", "abyssal", "revenant"].includes(deck.id);
+              const on = deck.hunterId === h.id;
+              return (
               <button
                 key={h.id}
                 type="button"
-                onClick={() => setDeck({ ...deck, hunterId: h.id })}
+                disabled={lockedStarter && !on}
+                onClick={() => {
+                  if (lockedStarter) return;
+                  setDeck({ ...deck, hunterId: h.id });
+                }}
                 className={cn(
                   "flex gap-3 rounded-lg border p-2 text-left",
-                  deck.hunterId === h.id ? "border-accent bg-surface-2" : "border-border bg-surface",
+                  on ? "border-accent bg-surface-2" : "border-border bg-surface",
+                  lockedStarter && !on && "opacity-40",
                 )}
               >
                 <img
@@ -548,7 +557,8 @@ export function DeckBuilder() {
                   <span className="text-xs text-muted">{h.powerText}</span>
                 </span>
               </button>
-            ))}
+              );
+            })}
           </div>
         </Section>
         <Section label="Add from collection">
