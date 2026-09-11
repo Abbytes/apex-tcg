@@ -784,6 +784,7 @@ export const POWER_STRIKE_NAME: Record<Faction, string> = {
 
 export const POWER_CINE_VIDEO: Partial<Record<Faction, string>> = {
   abyssal: "art/abyssal-power.mp4",
+  shadowborn: "art/shadowborn-power.mp4",
 };
 
 export const DECK_SIGILS: Record<Faction, string[]> = {
