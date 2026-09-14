@@ -1,8 +1,18 @@
 import { COLLECTIBLE, STARTER_DECKS, getCard, getHunter } from "./cards";
 import { DECK_SIZE } from "./types";
 
-export const SAVE_VERSION = 3;
+export const SAVE_VERSION = 4;
 const KEY = "apex-tcg-save-v1";
+
+export type PackKind = "mixed" | "bronze" | "blood" | "trench" | "ash";
+
+export interface Trophy {
+  cardId: string;
+  kind: "foil" | "relic";
+  serial?: number;
+  pack: PackKind;
+  pulledAt: string;
+}
 
 export interface SavedDeck {
   id: string;
@@ -20,6 +30,23 @@ export interface SaveData {
   wins: number;
   losses: number;
   packsOpened: number;
+  foils: Record<string, number>;
+  trophies: Trophy[];
+  relicWeekKey: string;
+  relicsThisWeek: number;
+}
+
+export const RELIC_IDS = ["first-spear", "matriarch-rex", "abyssal-leviathan", "vexed-king"];
+export const RELIC_CAP = 250;
+export const WEEK_RELIC_CAP = 1;
+
+export function relicWeekKey(at = new Date()): string {
+  const tmp = new Date(Date.UTC(at.getFullYear(), at.getMonth(), at.getDate()));
+  const day = tmp.getUTCDay() || 7;
+  tmp.setUTCDate(tmp.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(tmp.getUTCFullYear(), 0, 1));
+  const week = Math.ceil(((tmp.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+  return `${tmp.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
 }
 
 function starterCollection(): Record<string, number> {
@@ -67,6 +94,10 @@ export function defaultSave(): SaveData {
     wins: 0,
     losses: 0,
     packsOpened: 0,
+    foils: {},
+    trophies: [],
+    relicWeekKey: relicWeekKey(),
+    relicsThisWeek: 0,
   };
 }
 
@@ -128,6 +159,10 @@ function migrate(raw: SaveData): SaveData {
     collection,
     decks,
     activeDeckId,
+    foils: raw.foils ?? {},
+    trophies: raw.trophies ?? [],
+    relicWeekKey: raw.relicWeekKey ?? relicWeekKey(),
+    relicsThisWeek: raw.relicsThisWeek ?? 0,
   };
 }
 
