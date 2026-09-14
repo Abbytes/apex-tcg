@@ -81,6 +81,8 @@ export function CardFace({
   canAttack,
   hit = false,
   keywords,
+  foil = false,
+  relicSerial,
 }: {
   cardId: string;
   size?: keyof typeof SIZE;
@@ -94,6 +96,8 @@ export function CardFace({
   canAttack?: boolean;
   hit?: boolean;
   keywords?: Keyword[];
+  foil?: boolean;
+  relicSerial?: number;
 }) {
   const card = getCard(cardId);
   const marks = keywords ?? card.keywords;
@@ -113,6 +117,7 @@ export function CardFace({
         `card-frame-${card.faction}`,
         SIZE[size],
         selected && "card-lit ring-2 ring-accent",
+        foil && "ring-1 ring-accent/80",
         dim && "opacity-45",
         marks.includes("stalk") && "card-stalk",
         canAttack && "card-ready",
@@ -139,7 +144,12 @@ export function CardFace({
         )}
         {detailed && (
           <span className="absolute right-1.5 top-1.5 rounded-xs bg-bg/80 px-1 text-[0.58rem] tracking-wide text-accent">
-            {RARITY_LABEL[card.rarity]}
+            {relicSerial ? `RELIC #${String(relicSerial).padStart(3, "0")}` : foil ? "FOIL" : RARITY_LABEL[card.rarity]}
+          </span>
+        )}
+        {!detailed && (foil || relicSerial) && (
+          <span className="absolute right-1 top-1 z-10 rounded-xs bg-bg/80 px-1 text-[0.48rem] tracking-wide text-accent">
+            {relicSerial ? `#${relicSerial}` : "FOIL"}
           </span>
         )}
         <div
